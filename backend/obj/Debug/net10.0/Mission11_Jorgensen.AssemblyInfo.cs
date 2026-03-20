@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Mission11_Jorgensen")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+1196b839d813a3e675c93fa8338e2590954d6308")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+8cb00170334916ae3204c21e34410a9dbf61fcc6")]
 [assembly: System.Reflection.AssemblyProductAttribute("Mission11_Jorgensen")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Mission11_Jorgensen")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

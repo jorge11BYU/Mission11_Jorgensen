@@ -1,184 +1,215 @@
-.counter {
-  font-size: 16px;
-  padding: 5px 10px;
-  border-radius: 5px;
-  color: var(--accent);
-  background: var(--accent-bg);
-  border: 2px solid transparent;
-  transition: border-color 0.3s;
-  margin-bottom: 24px;
+/**
+ * Professional Bookstore Styling
+ * Color scheme: Teal/blue primary color (#3b7db8) for header and buttons
+ * Uses Bootstrap 5 framework with custom overrides and professional styling
+ */
 
-  &:hover {
-    border-color: var(--accent-border);
-  }
-  &:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 2px;
-  }
+:root {
+  /* Primary color: Professional teal for header and interactive elements */
+  --bs-primary: #3b7db8;
+  --bs-primary-rgb: 59, 125, 184;
 }
 
-.hero {
-  position: relative;
-
-  .base,
-  .framework,
-  .vite {
-    inset-inline: 0;
-    margin: 0 auto;
-  }
-
-  .base {
-    width: 170px;
-    position: relative;
-    z-index: 0;
-  }
-
-  .framework,
-  .vite {
-    position: absolute;
-  }
-
-  .framework {
-    z-index: 1;
-    top: 34px;
-    height: 28px;
-    transform: perspective(2000px) rotateZ(300deg) rotateX(44deg) rotateY(39deg)
-      scale(1.4);
-  }
-
-  .vite {
-    z-index: 0;
-    top: 107px;
-    height: 26px;
-    width: auto;
-    transform: perspective(2000px) rotateZ(300deg) rotateX(40deg) rotateY(39deg)
-      scale(0.8);
-  }
-}
-
-#center {
-  display: flex;
-  flex-direction: column;
-  gap: 25px;
-  place-content: center;
-  place-items: center;
-  flex-grow: 1;
-
-  @media (max-width: 1024px) {
-    padding: 32px 20px 24px;
-    gap: 18px;
-  }
-}
-
-#next-steps {
-  display: flex;
-  border-top: 1px solid var(--border);
-  text-align: left;
-
-  & > div {
-    flex: 1 1 0;
-    padding: 32px;
-    @media (max-width: 1024px) {
-      padding: 24px 20px;
-    }
-  }
-
-  .icon {
-    margin-bottom: 16px;
-    width: 22px;
-    height: 22px;
-  }
-
-  @media (max-width: 1024px) {
-    flex-direction: column;
-    text-align: center;
-  }
-}
-
-#docs {
-  border-right: 1px solid var(--border);
-
-  @media (max-width: 1024px) {
-    border-right: none;
-    border-bottom: 1px solid var(--border);
-  }
-}
-
-#next-steps ul {
-  list-style: none;
+/* Reset default margins and padding to span full width */
+html, body {
+  margin: 0;
   padding: 0;
-  display: flex;
-  gap: 8px;
-  margin: 32px 0 0;
-
-  .logo {
-    height: 18px;
-  }
-
-  a {
-    color: var(--text-h);
-    font-size: 16px;
-    border-radius: 6px;
-    background: var(--social-bg);
-    display: flex;
-    padding: 6px 12px;
-    align-items: center;
-    gap: 8px;
-    text-decoration: none;
-    transition: box-shadow 0.3s;
-
-    &:hover {
-      box-shadow: var(--shadow);
-    }
-    .button-icon {
-      height: 18px;
-      width: 18px;
-    }
-  }
-
-  @media (max-width: 1024px) {
-    margin-top: 20px;
-    flex-wrap: wrap;
-    justify-content: center;
-
-    li {
-      flex: 1 1 calc(50% - 8px);
-    }
-
-    a {
-      width: 100%;
-      justify-content: center;
-      box-sizing: border-box;
-    }
-  }
 }
 
-#spacer {
-  height: 88px;
-  border-top: 1px solid var(--border);
-  @media (max-width: 1024px) {
-    height: 48px;
-  }
+/* Light gray background for subtle contrast */
+body {
+  background-color: #f8f9fa;
 }
 
-.ticks {
-  position: relative;
+/* Header styling - full-width banner with shadow depth */
+header {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   width: 100%;
-
-  &::before,
-  &::after {
-    content: '';
-    position: absolute;
-    top: -4.5px;
-    border: 5px solid transparent;
-  }
-
-  &::before {
-    left: 0;
-    border-left-color: var(--border);
-  }
-  &::after {
-    right: 0;
-    border-right-color: var(--border);
-  }
 }
+
+
+/* Card styling */
+.card {
+  border: none;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.card-body {
+  padding: 2rem;
+}
+
+/* Table styling - book listing display */
+.table {
+  background-color: white;
+  margin-bottom: 0;
+}
+
+/* Table header styling */
+.table th {
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  background-color: #2c3e50;
+  border: none;
+}
+
+/* Table cell styling - consistent row height to prevent layout shifts */
+.table td {
+  min-height: 48px; /* Ensures consistent row heights even with wrapped text */
+  vertical-align: middle;
+  border-color: #e9ecef;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.table tbody tr {
+  transition: background-color 0.2s;
+}
+
+.table tbody tr:hover {
+  background-color: #f8f9fa;
+}
+
+/* Button styling - Bootstrap overrides for consistent appearance */
+.btn-outline-primary {
+  border-width: 2px;
+  font-weight: 500;
+  transition: all 0.3s;
+}
+
+.btn-outline-primary:hover:not(:disabled) {
+  transform: translateY(-2px); /* Subtle lift effect on hover */
+  box-shadow: 0 4px 8px rgba(59, 125, 184, 0.2);
+}
+
+.btn-outline-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Control buttons styled to match header color (#3b7db8) */
+.btn-control-primary {
+  background-color: #3b7db8 !important;
+  border-color: #3b7db8 !important;
+  color: white !important;
+}
+
+.btn-control-primary:hover:not(:disabled) {
+  background-color: #2d5f8d !important; /* Darker shade on hover */
+  border-color: #2d5f8d !important;
+}
+
+/* Outline variant of control buttons */
+.btn-control-outline {
+  background-color: transparent !important;
+  border-color: #3b7db8 !important;
+  color: #3b7db8 !important;
+}
+
+.btn-control-outline:hover:not(:disabled) {
+  background-color: #3b7db8 !important;
+  border-color: #3b7db8 !important;
+  color: white !important;
+}
+
+/* Group styling for button groups */
+.btn-group-control .btn-control-outline + .btn-control-outline {
+  border-left: 0;
+}
+
+/* Control buttons styling to match header color */
+.btn-control-primary {
+  background-color: #3b7db8 !important;
+  border-color: #3b7db8 !important;
+  color: white !important;
+}
+
+.btn-control-primary:hover:not(:disabled) {
+  background-color: #2d5f8d !important;
+  border-color: #2d5f8d !important;
+}
+
+.btn-control-outline {
+  background-color: transparent !important;
+  border-color: #3b7db8 !important;
+  color: #3b7db8 !important;
+}
+
+.btn-control-outline:hover:not(:disabled) {
+  background-color: #3b7db8 !important;
+  border-color: #3b7db8 !important;
+  color: white !important;
+}
+
+.btn-group-control .btn-control-outline + .btn-control-outline {
+  border-left: 0;
+}
+
+/* Form controls - dropdowns, inputs, and labels */
+.form-label {
+  font-weight: 500;
+  color: #495057;
+  margin-bottom: 0.5rem;
+}
+
+/* Consistent styling for selects and inputs */
+.form-select,
+.form-control {
+  border-color: #dee2e6;
+  border-width: 1px;
+}
+
+/* Focus styling with primary color accent */
+.form-select:focus,
+.form-control:focus {
+  border-color: #3b7db8;
+  box-shadow: 0 0 0 0.2rem rgba(59, 125, 184, 0.25);
+}
+
+/* Alert styling */
+.alert {
+  border: none;
+  border-radius: 0.375rem;
+}
+
+.alert-danger {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.alert-info {
+  background-color: #d1ecf1;
+  color: #0c5460;
+}
+
+/* Table column widths for consistency */
+.table td:nth-child(1) { width: 5%; }    /* ID */
+.table td:nth-child(2) { width: 20%; }   /* Title */
+.table td:nth-child(3) { width: 15%; }   /* Author */
+.table td:nth-child(4) { width: 15%; }   /* Publisher */
+.table td:nth-child(5) { width: 12%; }   /* ISBN */
+.table td:nth-child(6) { width: 10%; }   /* Category */
+.table td:nth-child(7) { width: 8%; }    /* Pages */
+.table td:nth-child(8) { width: 8%; }    /* Price */
+
+.table td {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Sortable column header styling */
+.table thead th {
+  cursor: default;
+}
+
+.table thead th[title="Click to sort by title"] {
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.table thead th[title="Click to sort by title"]:hover {
+  background-color: #3d4d5c;
+}
+
+
+
+
