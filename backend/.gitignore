@@ -1,0 +1,48 @@
+# Build results
+bin/
+obj/
+*.dll
+*.exe
+*.pdb
+
+# User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Visual Studio cache/options
+.vs/
+
+# Entity Framework scaffolding files
+.efignore
+
+# Local database files
+*.sqlite3
+*.db
+*.db-shm
+*.db-wal
+
+# Environment and secrets files
+appsettings.Development.json
+appsettings.Production.json
+.env
+secrets.json
+
+# Dependencies
+packages/
+.nuget/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Rider
+.idea/
+*.sln.iml
