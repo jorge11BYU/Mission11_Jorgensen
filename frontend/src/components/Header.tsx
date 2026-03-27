@@ -20,8 +20,10 @@ function Header() {
           </Link>
         </div>
         <div>
-          <Link to="/cart" className="btn btn-light rounded-pill px-4 shadow-sm fw-bold">
-            🛒 Cart ({cartCount}) <span className="text-primary ms-1">${cartTotal.toFixed(2)}</span>
+          <Link to="/cart" className="btn btn-light rounded-pill px-3 shadow-sm fw-bold">
+            🛒 Cart 
+            <span className="badge bg-primary rounded-pill mx-2">{cartCount}</span>
+            <span className="text-success">${cartTotal.toFixed(2)}</span>
           </Link>
         </div>
       </div>

@@ -1,8 +1,16 @@
 import { useNavigate } from 'react-router-dom'
 import { useCart } from '../context/CartContext'
 
+/**
+ * CartView Component
+ * Renders the dedicated checkout/cart page. Displays an interactive table of 
+ * cart items mapped from the global CartContext, allowing quantity updates 
+ * and line-item removals. Calculates dynamic subtotals directly in the view.
+ */
 export function CartView() {
+  // Unpack context functions and derived calculations
   const { cart, updateQuantity, removeFromCart, cartTotal, clearCart } = useCart()
+  // React Router hook for programmatic navigation
   const navigate = useNavigate()
 
   return (
@@ -16,6 +24,7 @@ export function CartView() {
 
       <div className="card shadow-sm">
         <div className="card-body">
+          {/* Empty Cart State: Prompts user to return to the catalog */}
           {cart.length === 0 ? (
             <div className="text-center py-5">
               <h4 className="text-muted">Your cart is empty.</h4>
@@ -26,6 +35,7 @@ export function CartView() {
             </div>
           ) : (
             <>
+              {/* Active Cart State: Displays the line-item table */}
               <div className="table-responsive">
                 <table className="table align-middle">
                   <thead className="table-light">

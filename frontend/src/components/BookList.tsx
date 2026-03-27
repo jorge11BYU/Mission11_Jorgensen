@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, useRef } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { CategorySidebar } from './CategorySidebar'
 import { useCart } from '../context/CartContext'
@@ -25,10 +25,24 @@ type BooksApiResponse = {
 
 const API_BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:5132'
 
+/**
+ * BookList Component
+ * 
+ * The primary catalog view of the application. It dynamically fetches paginated book data 
+ * from the API based on the current URL search parameters.
+ * 
+ * Key Architectural Decisions:
+ * - Pagination & Filtering: State is stored in the URL (`?page=2&category=Fiction`) instead of 
+ *   React `useState`. This allows users to bookmark specific pages and interact flawlessly with 
+ *   the browser's Back/Forward buttons and the Shopping Cart's "Continue Shopping" fallback.
+ * - Add to Cart: Integrates with CartContext and features a 3-second Toast alert built purely 
+ *   in React without requiring the bulky Bootstrap JS bundle.
+ */
 function BookList() {
   const [searchParams, setSearchParams] = useSearchParams()
   const { addToCart } = useCart()
   
+  // Derive active parameters directly from the URL. Fallback to defaults.
   const pageParam = searchParams.get('page')
   const page = pageParam ? parseInt(pageParam, 10) : 1
   const selectedCategory = searchParams.get('category') || ''
@@ -43,6 +57,25 @@ function BookList() {
   const [sortBy, setSortBy] = useState('id')
   const [sortOrder, setSortOrder] = useState('asc')
 
+  // Toast Notification State
+  const [toastMessage, setToastMessage] = useState<string | null>(null)
+  const toastTimeoutRef = useRef<number | null>(null)
+
+  const handleAddToCart = (book: Book) => {
+    addToCart(book)
+    setToastMessage(`"${book.title}" was added to your cart!`)
+    
+    // Clear previous timeout if user clicks multiple books fast
+    if (toastTimeoutRef.current !== null) {
+      clearTimeout(toastTimeoutRef.current)
+    }
+    // Set a new 3 second timeout for the Toast to fade away
+    toastTimeoutRef.current = setTimeout(() => {
+      setToastMessage(null)
+    }, 3000) as unknown as number
+  }
+
+  // Effect hook: Trigger an API re-fetch ANY time URL parameters or sorting rules change.
   useEffect(() => {
     const fetchBooks = async () => {
       setLoading(true)
@@ -74,6 +107,10 @@ function BookList() {
 
   const pageOptions = useMemo(() => [5, 10, 15, 20], [])
 
+  /**
+   * Safely updates the URL to navigate to a new page, ensuring the request 
+   * doesn't fall out of bounds of the actual data.
+   */
   const changePage = (newPage: number) => {
     const candidate = Math.max(1, Math.min(newPage, totalPages || 1))
     const newParams = new URLSearchParams(searchParams)
@@ -102,7 +139,7 @@ function BookList() {
   }
 
   return (
-    <section className="container py-4">
+    <section className="container-fluid px-4 py-4">
       <div className="row">
         {/* Category Sidebar Column */}
         <div className="col-12 col-md-3 mb-4 mb-md-0">
@@ -116,13 +153,20 @@ function BookList() {
               {error && <div className="alert alert-danger">{error}</div>}
 
               {loading ? (
-                <div className="alert alert-info">Loading books...</div>
+                <div className="text-center py-5">
+                  <div className="spinner-border text-primary" role="status" style={{ width: '3rem', height: '3rem' }}>
+                    <span className="visually-hidden">Loading...</span>
+                  </div>
+                  <h5 className="mt-3 text-muted">Retrieving Books...</h5>
+                </div>
               ) : (
                 <> 
                   <div className="table-responsive">
                     <table className="table table-striped table-bordered align-middle mb-0">
                       <thead className="table-dark">
                         <tr>
+                          <th style={{ width: '120px' }} className="text-center">Actions</th>
+                          <th>Price</th>
                           <th>ID</th>
                           <th 
                             style={{ cursor: 'pointer', userSelect: 'none' }}
@@ -136,29 +180,27 @@ function BookList() {
                           <th>ISBN</th>
                           <th>Category</th>
                           <th>Pages</th>
-                          <th>Price</th>
-                          <th style={{ width: '120px' }}>Actions</th>
                         </tr>
                       </thead>
                       <tbody>
                         {books.map((book) => (
                           <tr key={book.bookId}>
-                            <td>{book.bookId}</td>
-                            <td>{book.title}</td>
-                            <td>{book.author}</td>
-                            <td>{book.publisher}</td>
-                            <td>{book.isbn}</td>
-                            <td>{book.category}</td>
-                            <td>{book.pageCount}</td>
-                            <td>${book.price.toFixed(2)}</td>
-                            <td>
+                            <td className="text-center px-2">
                               <button
-                                className="btn btn-sm btn-primary w-100"
-                                onClick={() => addToCart(book)}
+                                className="btn btn-sm btn-pastel w-100"
+                                onClick={() => handleAddToCart(book)}
                               >
                                 Add to Cart
                               </button>
                             </td>
+                            <td className="fw-bold text-success">${book.price.toFixed(2)}</td>
+                            <td>{book.bookId}</td>
+                            <td className="fw-bold">{book.title}</td>
+                            <td>{book.author}</td>
+                            <td>{book.publisher}</td>
+                            <td><small className="text-muted">{book.isbn}</small></td>
+                            <td>{book.category}</td>
+                            <td>{book.pageCount}</td>
                           </tr>
                         ))}
                         {books.length === 0 && (
@@ -273,6 +315,31 @@ function BookList() {
           </div>
         </div>
       </div>
+
+      {/* Bootstrap Toast Notification Container */}
+      {/* Positioned at the bottom-right corner, fixed above all other content */}
+      <div className="toast-container position-fixed bottom-0 end-0 p-3" style={{ zIndex: 1055 }}>
+        <div 
+          className={`toast align-items-center text-bg-success border-0 ${toastMessage ? 'show' : 'hide'}`} 
+          role="alert" 
+          aria-live="assertive" 
+          aria-atomic="true"
+        >
+          <div className="d-flex">
+            <div className="toast-body">
+              <span className="fw-bold me-2">Success!</span> 
+              {toastMessage}
+            </div>
+            <button 
+              type="button" 
+              className="btn-close btn-close-white me-2 m-auto" 
+              onClick={() => setToastMessage(null)} 
+              aria-label="Close"
+            ></button>
+          </div>
+        </div>
+      </div>
+
     </section>
   )
 }

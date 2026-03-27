@@ -3,6 +3,13 @@ import { useSearchParams } from 'react-router-dom'
 
 const API_BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:5132'
 
+/**
+ * CategorySidebar Component
+ * 
+ * Fetches distinct book categories from the backend and renders them as a vertical 
+ * list of buttons. It delegates state management entirely to React Router by injecting 
+ * the selected category into the URL query parameters (`?category=X`).
+ */
 export function CategorySidebar() {
   const [categories, setCategories] = useState<string[]>([])
   const [loading, setLoading] = useState(false)
@@ -29,12 +36,14 @@ export function CategorySidebar() {
   }, [])
 
   const handleCategoryClick = (category: string) => {
-    // We update the category and explicitly reset the page to 1
+    // Generate new URL parameters based on the clicked category
     const newParams = new URLSearchParams()
     if (category) {
       newParams.set('category', category)
     }
-    newParams.set('page', '1') // Ensure pagination resets
+    // CRITICAL: Always reset the page to 1 when changing categories. 
+    // Failing to do so could leave the user on "Page 5" of a category that only has 1 page of books.
+    newParams.set('page', '1')
     setSearchParams(newParams)
   }
 
@@ -45,18 +54,22 @@ export function CategorySidebar() {
       </div>
       <div className="list-group list-group-flush">
         <button
-          className={`list-group-item list-group-item-action ${!currentCategory ? 'active' : ''}`}
+          className={`list-group-item list-group-item-action ${!currentCategory ? 'active pastel-active' : ''}`}
           onClick={() => handleCategoryClick('')}
         >
           All
         </button>
         {loading ? (
-          <div className="list-group-item">Loading...</div>
+          <div className="list-group-item text-center py-4">
+            <div className="spinner-border text-primary" role="status">
+              <span className="visually-hidden">Loading categories...</span>
+            </div>
+          </div>
         ) : (
           categories.map((cat) => (
             <button
               key={cat}
-              className={`list-group-item list-group-item-action ${currentCategory === cat ? 'active' : ''}`}
+              className={`list-group-item list-group-item-action ${currentCategory === cat ? 'active pastel-active' : ''}`}
               onClick={() => handleCategoryClick(cat)}
             >
               {cat}

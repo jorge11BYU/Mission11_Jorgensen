@@ -109,3 +109,24 @@ code {
   padding: 4px 8px;
   background: var(--code-bg);
 }
+
+/* Custom Bookstore Pastel Colors */
+.btn-pastel {
+  background-color: #b0c4de;
+  border-color: #b0c4de;
+  color: #000;
+  font-weight: 500;
+  transition: all 0.2s ease-in-out;
+}
+.btn-pastel:hover {
+  background-color: #9cb4d4;
+  border-color: #9cb4d4;
+  color: #000;
+}
+
+.list-group-item.pastel-active {
+  background-color: #b0c4de !important;
+  border-color: #b0c4de !important;
+  color: #000 !important;
+  font-weight: bold;
+}
