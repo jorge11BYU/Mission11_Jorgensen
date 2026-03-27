@@ -29,18 +29,20 @@ public class BooksController : ControllerBase
     /// <param name="sortOrder">Sort direction: 'asc' or 'desc' (default: 'asc')</param>
     /// <returns>JSON object with total books, current page, totalPages, pageSize, and books array</returns>
     [HttpGet]
-    public async Task<IActionResult> GetBooks(int page = 1, int pageSize = 5, string sortBy = "id", string sortOrder = "asc")
+    public async Task<IActionResult> GetBooks(int page = 1, int pageSize = 5, string sortBy = "id", string sortOrder = "asc", string? category = null)
     {
         // Validate and sanitize page/pageSize input
         if (page < 1) page = 1;
         if (pageSize < 1) pageSize = 5;
 
-        // Calculate total books and total pages for response metadata
-        var total = await _context.Books.CountAsync();
-        var totalPages = (int)Math.Ceiling(total / (double)pageSize);
-
         // Start building the query
         IQueryable<Book> query = _context.Books;
+
+        // Apply category filter if provided
+        if (!string.IsNullOrEmpty(category))
+        {
+            query = query.Where(b => b.Category == category);
+        }
 
         // Apply sorting based on sortBy parameter (title or id)
         if (sortBy == "title")
@@ -57,6 +59,10 @@ public class BooksController : ControllerBase
                 : query.OrderBy(b => b.BookId);
         }
 
+        // Calculate total books and total pages for response metadata AFTER filtering
+        var total = await query.CountAsync();
+        var totalPages = (int)Math.Ceiling(total / (double)pageSize);
+
         // Apply pagination: skip to the start of the requested page, then take pageSize records
         var books = await query
             .Skip((page - 1) * pageSize)
@@ -72,5 +78,22 @@ public class BooksController : ControllerBase
             totalPages,
             books
         });
+    }
+
+    /// <summary>
+    /// GET /api/books/categories - Retrieves a distinct list of categories from the database
+    /// </summary>
+    /// <returns>JSON array of strings</returns>
+    [HttpGet("categories")]
+    public async Task<IActionResult> GetCategories()
+    {
+        var categories = await _context.Books
+            .Where(b => !string.IsNullOrEmpty(b.Category))
+            .Select(b => b.Category)
+            .Distinct()
+            .OrderBy(c => c)
+            .ToListAsync();
+
+        return Ok(categories);
     }
 }

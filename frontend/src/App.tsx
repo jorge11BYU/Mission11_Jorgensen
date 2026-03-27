@@ -1,17 +1,19 @@
+import { Routes, Route } from 'react-router-dom'
+import { CartProvider } from './context/CartContext'
 import './App.css'
 import Header from './components/Header'
 import BookList from './components/BookList'
+import { CartView } from './components/CartView'
 
-/*
-- Header: Navigation/branding banner at the top
-- BookList: Main content area with book listing, pagination, and sorting
- */
 function App() {
   return (
-    <>
+    <CartProvider>
       <Header />
-      <BookList />
-    </>
+      <Routes>
+        <Route path="/" element={<BookList />} />
+        <Route path="/cart" element={<CartView />} />
+      </Routes>
+    </CartProvider>
   )
 }
 

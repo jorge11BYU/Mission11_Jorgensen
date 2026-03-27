@@ -2509,11 +2509,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\spenc\\source\\repos\\Mission11_Jorgensen\\backend\\Mission11_Jorgensen.csproj",
-      "projectName": "Mission11_Jorgensen",
-      "projectPath": "C:\\Users\\spenc\\source\\repos\\Mission11_Jorgensen\\backend\\Mission11_Jorgensen.csproj",
+      "projectUniqueName": "C:\\Users\\spenc\\source\\repos\\Mission12_Jorgensen\\backend\\Mission12_Jorgensen.csproj",
+      "projectName": "Mission12_Jorgensen",
+      "projectPath": "C:\\Users\\spenc\\source\\repos\\Mission12_Jorgensen\\backend\\Mission12_Jorgensen.csproj",
       "packagesPath": "C:\\Users\\spenc\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\spenc\\source\\repos\\Mission11_Jorgensen\\backend\\obj\\",
+      "outputPath": "C:\\Users\\spenc\\source\\repos\\Mission12_Jorgensen\\backend\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

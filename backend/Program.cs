@@ -14,9 +14,20 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy(AllowFrontendOrigins, policy =>
     {
-        policy.WithOrigins("http://localhost:5173")
-              .AllowAnyHeader()
-              .AllowAnyMethod();
+        // Allow the common local development frontend origins and API test origins
+        policy.WithOrigins(
+                "http://localhost:5173",
+                "https://localhost:5173",
+                "http://127.0.0.1:5173",
+                "https://127.0.0.1:5173",
+                "http://localhost:5180",
+                "https://localhost:5180"
+            )
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+
+        // For simpler local debugging, uncomment to allow all origins (not for production)
+        // policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
     });
 });
 
