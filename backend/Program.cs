@@ -21,7 +21,8 @@ builder.Services.AddCors(options =>
                 "http://127.0.0.1:5173",
                 "https://127.0.0.1:5173",
                 "http://localhost:5180",
-                "https://localhost:5180"
+                "https://localhost:5180",
+                "https://mango-water-0587dc210.1.azurestaticapps.net"
             )
             .AllowAnyHeader()
             .AllowAnyMethod();
