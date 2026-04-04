@@ -47,8 +47,8 @@ if (app.Environment.IsDevelopment())
 
 // Middleware pipeline setup
 app.UseHttpsRedirection();
+app.UseCors(AllowFrontendOrigins); // CORS must be before UseAuthorization
 app.UseAuthorization();
-app.UseCors(AllowFrontendOrigins); // Enable CORS for frontend requests
 
 app.MapControllers();
 
