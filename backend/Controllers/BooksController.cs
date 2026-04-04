@@ -96,4 +96,68 @@ public class BooksController : ControllerBase
 
         return Ok(categories);
     }
+
+    /// <summary>
+    /// POST /api/books - Creates a new book in the database
+    /// </summary>
+    /// <param name="book">The book object to create (BookId is ignored / auto-generated)</param>
+    /// <returns>The newly created book with its assigned BookId</returns>
+    [HttpPost]
+    public async Task<IActionResult> CreateBook([FromBody] Book book)
+    {
+        _context.Books.Add(book);
+        await _context.SaveChangesAsync();
+
+        return CreatedAtAction(nameof(GetBooks), new { id = book.BookId }, book);
+    }
+
+    /// <summary>
+    /// PUT /api/books/{id} - Updates an existing book by its ID
+    /// </summary>
+    /// <param name="id">BookId of the book to update</param>
+    /// <param name="book">Updated book data</param>
+    /// <returns>The updated book object, or 404 if not found</returns>
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateBook(int id, [FromBody] Book book)
+    {
+        var existing = await _context.Books.FindAsync(id);
+        if (existing == null)
+        {
+            return NotFound(new { message = $"Book with ID {id} not found." });
+        }
+
+        // Update all mutable fields
+        existing.Title = book.Title;
+        existing.Author = book.Author;
+        existing.Publisher = book.Publisher;
+        existing.Isbn = book.Isbn;
+        existing.Classification = book.Classification;
+        existing.Category = book.Category;
+        existing.PageCount = book.PageCount;
+        existing.Price = book.Price;
+
+        await _context.SaveChangesAsync();
+
+        return Ok(existing);
+    }
+
+    /// <summary>
+    /// DELETE /api/books/{id} - Deletes a book by its ID
+    /// </summary>
+    /// <param name="id">BookId of the book to delete</param>
+    /// <returns>204 No Content on success, or 404 if not found</returns>
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteBook(int id)
+    {
+        var book = await _context.Books.FindAsync(id);
+        if (book == null)
+        {
+            return NotFound(new { message = $"Book with ID {id} not found." });
+        }
+
+        _context.Books.Remove(book);
+        await _context.SaveChangesAsync();
+
+        return NoContent();
+    }
 }

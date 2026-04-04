@@ -2,6 +2,8 @@ import { useEffect, useMemo, useState, useRef } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { CategorySidebar } from './CategorySidebar'
 import { useCart } from '../context/CartContext'
+import { BookFormModal } from './BookFormModal'
+import { DeleteConfirmModal } from './DeleteConfirmModal'
 
 type Book = {
   bookId: number
@@ -37,6 +39,8 @@ const API_BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:5132'
  *   the browser's Back/Forward buttons and the Shopping Cart's "Continue Shopping" fallback.
  * - Add to Cart: Integrates with CartContext and features a 3-second Toast alert built purely 
  *   in React without requiring the bulky Bootstrap JS bundle.
+ * - CRUD: Inline Edit/Delete buttons per row, plus an "Add Book" button above the table.
+ *   Both Add and Edit open a modal dialog; Delete shows a confirmation modal.
  */
 function BookList() {
   const [searchParams, setSearchParams] = useSearchParams()
@@ -59,23 +63,107 @@ function BookList() {
 
   // Toast Notification State
   const [toastMessage, setToastMessage] = useState<string | null>(null)
+  const [toastVariant, setToastVariant] = useState<'success' | 'danger'>('success')
   const toastTimeoutRef = useRef<number | null>(null)
 
-  const handleAddToCart = (book: Book) => {
-    addToCart(book)
-    setToastMessage(`"${book.title}" was added to your cart!`)
-    
-    // Clear previous timeout if user clicks multiple books fast
+  // CRUD Modal State
+  const [showFormModal, setShowFormModal] = useState(false)
+  const [editingBook, setEditingBook] = useState<Book | null>(null)
+  const [saving, setSaving] = useState(false)
+
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [deletingBook, setDeletingBook] = useState<Book | null>(null)
+  const [deleting, setDeleting] = useState(false)
+
+  // A counter that increments after every successful CRUD operation to trigger re-fetch
+  const [refreshKey, setRefreshKey] = useState(0)
+
+  const showToast = (message: string, variant: 'success' | 'danger' = 'success') => {
+    setToastMessage(message)
+    setToastVariant(variant)
     if (toastTimeoutRef.current !== null) {
       clearTimeout(toastTimeoutRef.current)
     }
-    // Set a new 3 second timeout for the Toast to fade away
     toastTimeoutRef.current = setTimeout(() => {
       setToastMessage(null)
     }, 3000) as unknown as number
   }
 
-  // Effect hook: Trigger an API re-fetch ANY time URL parameters or sorting rules change.
+  const handleAddToCart = (book: Book) => {
+    addToCart(book)
+    showToast(`"${book.title}" was added to your cart!`)
+  }
+
+  // ─── CRUD Handlers ────────────────────────────────────────
+
+  const handleAddClick = () => {
+    setEditingBook(null)
+    setShowFormModal(true)
+  }
+
+  const handleEditClick = (book: Book) => {
+    setEditingBook(book)
+    setShowFormModal(true)
+  }
+
+  const handleDeleteClick = (book: Book) => {
+    setDeletingBook(book)
+    setShowDeleteModal(true)
+  }
+
+  const handleFormSave = async (bookData: Omit<Book, 'bookId'> & { bookId?: number }) => {
+    setSaving(true)
+    try {
+      if (bookData.bookId) {
+        // UPDATE
+        const resp = await fetch(`${API_BASE_URL}/api/books/${bookData.bookId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(bookData),
+        })
+        if (!resp.ok) throw new Error(`Failed to update book: ${resp.status}`)
+        showToast(`"${bookData.title}" was updated successfully!`)
+      } else {
+        // CREATE
+        const resp = await fetch(`${API_BASE_URL}/api/books`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(bookData),
+        })
+        if (!resp.ok) throw new Error(`Failed to create book: ${resp.status}`)
+        showToast(`"${bookData.title}" was added to the catalog!`)
+      }
+      setShowFormModal(false)
+      setEditingBook(null)
+      setRefreshKey((k) => k + 1)
+    } catch (e) {
+      showToast(e instanceof Error ? e.message : 'An error occurred', 'danger')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const handleDeleteConfirm = async () => {
+    if (!deletingBook) return
+    setDeleting(true)
+    try {
+      const resp = await fetch(`${API_BASE_URL}/api/books/${deletingBook.bookId}`, {
+        method: 'DELETE',
+      })
+      if (!resp.ok) throw new Error(`Failed to delete book: ${resp.status}`)
+      showToast(`"${deletingBook.title}" was deleted.`)
+      setShowDeleteModal(false)
+      setDeletingBook(null)
+      setRefreshKey((k) => k + 1)
+    } catch (e) {
+      showToast(e instanceof Error ? e.message : 'An error occurred', 'danger')
+    } finally {
+      setDeleting(false)
+    }
+  }
+
+  // ─── Data Fetching ────────────────────────────────────────
+
   useEffect(() => {
     const fetchBooks = async () => {
       setLoading(true)
@@ -103,7 +191,7 @@ function BookList() {
     }
 
     fetchBooks()
-  }, [page, pageSize, sortBy, sortOrder, selectedCategory])
+  }, [page, pageSize, sortBy, sortOrder, selectedCategory, refreshKey])
 
   const pageOptions = useMemo(() => [5, 10, 15, 20], [])
 
@@ -150,6 +238,14 @@ function BookList() {
         <div className="col-12 col-md-9">
           <div className="card shadow-sm">
             <div className="card-body">
+              {/* Add Book button */}
+              <div className="d-flex justify-content-between align-items-center mb-3">
+                <h5 className="mb-0">📚 Book Catalog</h5>
+                <button className="btn-add-book" onClick={handleAddClick}>
+                  + Add New Book
+                </button>
+              </div>
+
               {error && <div className="alert alert-danger">{error}</div>}
 
               {loading ? (
@@ -165,7 +261,7 @@ function BookList() {
                     <table className="table table-striped table-bordered align-middle mb-0">
                       <thead className="table-dark">
                         <tr>
-                          <th style={{ width: '120px' }} className="text-center">Actions</th>
+                          <th style={{ width: '150px' }} className="text-center">Actions</th>
                           <th>Price</th>
                           <th>ID</th>
                           <th 
@@ -186,12 +282,29 @@ function BookList() {
                         {books.map((book) => (
                           <tr key={book.bookId}>
                             <td className="text-center px-2">
-                              <button
-                                className="btn btn-sm btn-pastel w-100"
-                                onClick={() => handleAddToCart(book)}
-                              >
-                                Add to Cart
-                              </button>
+                              <div className="d-flex gap-1 justify-content-center flex-wrap">
+                                <button
+                                  className="btn btn-sm btn-pastel"
+                                  onClick={() => handleAddToCart(book)}
+                                  title="Add to Cart"
+                                >
+                                  🛒
+                                </button>
+                                <button
+                                  className="btn-action-edit"
+                                  onClick={() => handleEditClick(book)}
+                                  title="Edit Book"
+                                >
+                                  ✏️
+                                </button>
+                                <button
+                                  className="btn-action-delete"
+                                  onClick={() => handleDeleteClick(book)}
+                                  title="Delete Book"
+                                >
+                                  🗑️
+                                </button>
+                              </div>
                             </td>
                             <td className="fw-bold text-success">${book.price.toFixed(2)}</td>
                             <td>{book.bookId}</td>
@@ -205,7 +318,7 @@ function BookList() {
                         ))}
                         {books.length === 0 && (
                           <tr>
-                            <td colSpan={8} className="text-center py-3">
+                            <td colSpan={9} className="text-center py-3">
                               No books found for this category.
                             </td>
                           </tr>
@@ -316,18 +429,34 @@ function BookList() {
         </div>
       </div>
 
+      {/* ─── Modals ─────────────────────────────────────── */}
+      <BookFormModal
+        show={showFormModal}
+        book={editingBook}
+        onClose={() => { setShowFormModal(false); setEditingBook(null) }}
+        onSave={handleFormSave}
+        saving={saving}
+      />
+
+      <DeleteConfirmModal
+        show={showDeleteModal}
+        bookTitle={deletingBook?.title ?? ''}
+        onClose={() => { setShowDeleteModal(false); setDeletingBook(null) }}
+        onConfirm={handleDeleteConfirm}
+        deleting={deleting}
+      />
+
       {/* Bootstrap Toast Notification Container */}
-      {/* Positioned at the bottom-right corner, fixed above all other content */}
       <div className="toast-container position-fixed bottom-0 end-0 p-3" style={{ zIndex: 1055 }}>
         <div 
-          className={`toast align-items-center text-bg-success border-0 ${toastMessage ? 'show' : 'hide'}`} 
+          className={`toast align-items-center border-0 ${toastMessage ? 'show' : 'hide'} ${toastVariant === 'danger' ? 'text-bg-danger' : 'text-bg-success'}`} 
           role="alert" 
           aria-live="assertive" 
           aria-atomic="true"
         >
           <div className="d-flex">
             <div className="toast-body">
-              <span className="fw-bold me-2">Success!</span> 
+              <span className="fw-bold me-2">{toastVariant === 'danger' ? 'Error!' : 'Success!'}</span> 
               {toastMessage}
             </div>
             <button 
