@@ -1,0 +1,4 @@
+{
+    "appService.defaultWebAppToDeploy": "/subscriptions/3db29559-684b-4a84-96c0-00a9da0dae8d/resourceGroups/appsvc_windows_francecentral/providers/Microsoft.Web/sites/Mission13-Jorgensen-Backend",
+    "appService.deploySubpath": "backend\\publish"
+}

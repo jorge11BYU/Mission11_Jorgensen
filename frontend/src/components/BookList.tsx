@@ -25,7 +25,7 @@ type BooksApiResponse = {
   books: Book[]
 }
 
-const API_BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:5132'
+const API_BASE_URL = import.meta.env.VITE_API_URL ?? 'https://mission13-jorgensen-backend-ckbxgyafacb7g0dx.francecentral-01.azurewebsites.net'
 
 /**
  * BookList Component
